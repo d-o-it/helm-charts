@@ -1,0 +1,65 @@
+name: Helm Chart Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'charts/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint charts
+        run: |
+          for chart in charts/*/; do
+            echo "Linting $chart"
+            helm lint "$chart"
+          done
+
+      - name: Package charts
+        run: |
+          mkdir -p .cr-release-packages
+          for chart in charts/*/; do
+            helm package "$chart" --destination .cr-release-packages
+          done
+
+      - name: Update Helm repo index
+        run: |
+          helm repo index .cr-release-packages \
+            --url https://d-o-it.github.io/helm-charts/releases \
+            --merge charts/index.yaml
+          cp .cr-release-packages/index.yaml charts/index.yaml
+
+      - name: Upload chart packages as release artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: helm-charts-${{ github.sha }}
+          name: Helm Charts ${{ github.sha }}
+          files: .cr-release-packages/*.tgz
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit updated index.yaml
+        run: |
+          git add charts/index.yaml
+          git diff --staged --quiet || git commit -m "ci: update helm repo index [skip ci]"
+          git push
