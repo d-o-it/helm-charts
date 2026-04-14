@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  sankeymatic:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2026-04-14T21:04:01.798943+02:00"
+    description: A Helm chart for Kubernetes deployment of SankeyMATIC
+    digest: 4f7a528eac8f4851e8dbf4b3b8c53d97a30320442c61d66a2a80c70fc49dc588
+    name: sankeymatic
+    type: application
+    urls:
+    - https://d-o-it.github.io/helm-charts/sankeymatic-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-04-14T21:04:01.797852+02:00"
