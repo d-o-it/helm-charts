@@ -34,29 +34,42 @@ jobs:
             helm lint "$chart"
           done
 
-      - name: Package charts
+      - name: Package charts and publish releases
+        id: package
         run: |
           mkdir -p .cr-release-packages
           for chart in charts/*/; do
+            name=$(helm show chart "$chart" | grep '^name:' | awk '{print $2}')
+            version=$(helm show chart "$chart" | grep '^version:' | awk '{print $2}')
+            tag="${name}-${version}"
+            echo "Packaging $name@$version (tag: $tag)"
             helm package "$chart" --destination .cr-release-packages
+
+            # Create or update the GitHub release for this chart version
+            gh release view "$tag" > /dev/null 2>&1 && \
+              gh release upload "$tag" ".cr-release-packages/${name}-${version}.tgz" --clobber || \
+              gh release create "$tag" ".cr-release-packages/${name}-${version}.tgz" \
+                --title "${name} ${version}" \
+                --notes "Helm chart release for ${name} version ${version}" \
+                --latest=false
           done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Helm repo index
         run: |
-          helm repo index .cr-release-packages \
-            --url https://d-o-it.github.io/helm-charts/releases \
-            --merge charts/index.yaml
+          # Build index merging each chart's release download URL
+          cp charts/index.yaml .cr-release-packages/index.yaml
+          for chart in charts/*/; do
+            name=$(helm show chart "$chart" | grep '^name:' | awk '{print $2}')
+            version=$(helm show chart "$chart" | grep '^version:' | awk '{print $2}')
+            tag="${name}-${version}"
+            url="https://github.com/${{ github.repository }}/releases/download/${tag}/${name}-${version}.tgz"
+            helm repo index .cr-release-packages \
+              --url "https://github.com/${{ github.repository }}/releases/download/${tag}" \
+              --merge .cr-release-packages/index.yaml
+          done
           cp .cr-release-packages/index.yaml charts/index.yaml
-
-      - name: Upload chart packages as release artifacts
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: helm-charts-${{ github.sha }}
-          name: Helm Charts ${{ github.sha }}
-          files: .cr-release-packages/*.tgz
-          generate_release_notes: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit updated index.yaml
         run: |
