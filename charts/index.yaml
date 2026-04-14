@@ -9,6 +9,6 @@ entries:
     name: sankeymatic
     type: application
     urls:
-    - https://d-o-it.github.io/helm-charts/releases/sankeymatic-0.1.0.tgz
+    - https://github.com/d-o-it/helm-charts/releases/download/sankeymatic-0.1.0/sankeymatic-0.1.0.tgz
     version: 0.1.0
 generated: "2026-04-14T19:32:19.609379057Z"
