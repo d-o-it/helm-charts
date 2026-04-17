@@ -2,10 +2,11 @@ apiVersion: v1
 entries:
   aliasvault:
   - apiVersion: v2
-    appVersion: 1.16.0
-    created: "2026-04-17T17:33:46.241544045Z"
-    description: A Helm chart for Kubernetes
-    digest: e8913a1363b3f41e8d546b0133327980b5f1cc4aff3b7a88d41bfeb5c33ee221
+    appVersion: 0.28.1
+    created: "2026-04-17T17:40:00.167284553Z"
+    description: A Helm chart for deploying AliasVault - privacy-first password manager
+      with built-in email aliasing
+    digest: e953885e71777f990586ca4d059e4ac1dc5e674d3a1a62be6eaf23703ced91f1
     name: aliasvault
     type: application
     urls:
@@ -14,12 +15,12 @@ entries:
   sankeymatic:
   - apiVersion: v2
     appVersion: latest
-    created: "2026-04-17T17:33:46.242049428Z"
+    created: "2026-04-17T17:40:00.167860059Z"
     description: A Helm chart for Kubernetes deployment of SankeyMATIC
-    digest: a0805edce6fb54e14493e54f20376cb81bbe80db0d9e313c4cdfb39c0c404a57
+    digest: 4dbf2cc9fecf41a4ad3b78e2067cc2f7e1572144832e679b68d2b629e3be3049
     name: sankeymatic
     type: application
     urls:
     - https://github.com/d-o-it/helm-charts/releases/download/sankeymatic-0.1.0/sankeymatic-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-17T17:33:46.24067352Z"
+generated: "2026-04-17T17:40:00.166497171Z"
