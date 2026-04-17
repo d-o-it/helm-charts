@@ -67,6 +67,8 @@ spec:
               value: {{ .Values.config.privateEmailDomains | quote }}
             - name: SMTP_TLS_ENABLED
               value: {{ .Values.config.smtpTlsEnabled | quote }}
+                          - name: SMTP_ADVERTISED_HOSTNAME
+              value: {{ .Values.config.smtpAdvertisedHostname | quote }}
             - name: DATA_PROTECTION_CERT_PASSWORD
               valueFrom:
                 secretKeyRef:
