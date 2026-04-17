@@ -42,8 +42,36 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 80
               protocol: TCP
+            {{- if .Values.service.smtp.enabled }}
+            - name: smtp
+              containerPort: 25
+              protocol: TCP
+            - name: submission
+              containerPort: 587
+              protocol: TCP
+            {{- end }}
+          env:
+            - name: HOSTNAME
+              value: {{ .Values.config.hostname | quote }}
+            - name: PUBLIC_REGISTRATION_ENABLED
+              value: {{ .Values.config.publicRegistrationEnabled | quote }}
+            - name: IP_LOGGING_ENABLED
+              value: {{ .Values.config.ipLoggingEnabled | quote }}
+            - name: FORCE_HTTPS_REDIRECT
+              value: {{ .Values.config.forceHttpsRedirect | quote }}
+            - name: SUPPORT_EMAIL
+              value: {{ .Values.config.supportEmail | quote }}
+            - name: PRIVATE_EMAIL_DOMAINS
+              value: {{ .Values.config.privateEmailDomains | quote }}
+            - name: SMTP_TLS_ENABLED
+              value: {{ .Values.config.smtpTlsEnabled | quote }}
+            - name: DATA_PROTECTION_CERT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aliasvault.secretName" . }}
+                  key: {{ .Values.secret.dataProtectionCertPasswordKey }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -56,14 +84,38 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: database
+              mountPath: /database
+            - name: logs
+              mountPath: /logs
+            - name: secrets
+              mountPath: /secrets
+            - name: certificates
+              mountPath: /certificates
+            {{- end }}
+            {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            {{- end }}
       volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: database
+          persistentVolumeClaim:
+            claimName: {{ include "aliasvault.fullname" . }}-database
+        - name: logs
+          persistentVolumeClaim:
+            claimName: {{ include "aliasvault.fullname" . }}-logs
+        - name: secrets
+          persistentVolumeClaim:
+            claimName: {{ include "aliasvault.fullname" . }}-secrets
+        - name: certificates
+          persistentVolumeClaim:
+            claimName: {{ include "aliasvault.fullname" . }}-certificates
+        {{- end }}
+        {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
