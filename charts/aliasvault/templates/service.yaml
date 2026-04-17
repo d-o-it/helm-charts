@@ -7,9 +7,19 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.service.httpPort }}
       targetPort: http
       protocol: TCP
       name: http
+    {{- if .Values.service.smtp.enabled }}
+    - port: {{ .Values.service.smtp.port }}
+      targetPort: smtp
+      protocol: TCP
+      name: smtp
+    - port: {{ .Values.service.smtp.submissionPort }}
+      targetPort: submission
+      protocol: TCP
+      name: submission
+    {{- end }}
   selector:
     {{- include "aliasvault.selectorLabels" . | nindent 4 }}
