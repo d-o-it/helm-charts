@@ -60,3 +60,15 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the secret to use.
+If secret.existingSecret is set, use that; otherwise use the chart-managed secret name.
+*/}}
+{{- define "aliasvault.secretName" -}}
+{{- if .Values.secret.existingSecret }}
+{{- .Values.secret.existingSecret }}
+{{- else }}
+{{- printf "%s-secret" (include "aliasvault.fullname" .) }}
+{{- end }}
+{{- end }}
