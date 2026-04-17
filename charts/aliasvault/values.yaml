@@ -33,6 +33,8 @@ config:
   privateEmailDomains: ""
   # Enable TLS for SMTP
   smtpTlsEnabled: "false"
+    # SMTP advertised hostname (new in AliasVault 0.28.1) - leave empty to use config.hostname
+  smtpAdvertisedHostname: ""
 
 # Secret configuration
 # The DATA_PROTECTION_CERT_PASSWORD is required by AliasVault for encrypting
