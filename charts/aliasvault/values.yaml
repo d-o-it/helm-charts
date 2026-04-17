@@ -2,40 +2,84 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+# AliasVault runs as a single all-in-one container (s6-overlay based).
+# Replicas > 1 are not supported due to local SQLite database.
 replicaCount: 1
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+# Container image settings
 image:
-  repository: nginx
-  # This sets the pull policy for images.
+  repository: ghcr.io/aliasvault/aliasvault
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
-# This is to override the chart name.
 nameOverride: ""
 fullnameOverride: ""
 
-# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+# AliasVault application configuration
+config:
+  # Hostname used by AliasVault (must match your external domain)
+  hostname: "localhost"
+  # Allow public user registration
+  publicRegistrationEnabled: "true"
+  # Log IP addresses of users
+  ipLoggingEnabled: "true"
+  # Set to false when TLS is handled by an external reverse proxy (recommended)
+  forceHttpsRedirect: "false"
+  # Optional support email address
+  supportEmail: ""
+  # Comma-separated list of private email domains for email aliasing
+  privateEmailDomains: ""
+  # Enable TLS for SMTP
+  smtpTlsEnabled: "false"
+
+# Secret configuration
+# The DATA_PROTECTION_CERT_PASSWORD is required by AliasVault for encrypting
+# its internal certificates. Set this to a secure random string.
+secret:
+  # Create a secret with the required keys (recommended for production)
+  create: true
+  # If create is false, provide the name of an existing secret
+  existingSecret: ""
+  # Key within the secret containing the data protection cert password
+  dataProtectionCertPasswordKey: "DATA_PROTECTION_CERT_PASSWORD"
+  # The actual password value (only used when secret.create is true)
+  # IMPORTANT: Change this to a secure random string in production!
+  dataProtectionCertPassword: "change-me-to-a-secure-random-value"
+
+# Persistence configuration for AliasVault data directories
+persistence:
+  # Enable persistent storage (strongly recommended for production)
+  enabled: true
+  # Storage class name - leave empty to use the cluster default
+  storageClassName: ""
+  accessMode: ReadWriteOnce
+  # Database storage (SQLite)
+  database:
+    size: 2Gi
+  # Log storage
+  logs:
+    size: 1Gi
+  # Secrets/certificates storage
+  secrets:
+    size: 1Gi
+  # Certificate storage
+  certificates:
+    size: 1Gi
+
 serviceAccount:
   # Specifies whether a service account should be created.
-  create: true
+  create: false
   # Automatically mount a ServiceAccount's API credentials?
-  automount: true
+  automount: false
   # Annotations to add to the service account.
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template.
   name: ""
 
-# This is for setting Kubernetes Annotations to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
 podAnnotations: {}
-# This is for setting Kubernetes Labels to a Pod.
-# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
 podSecurityContext: {}
@@ -49,113 +93,87 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+# Service configuration
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: ClusterIP
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
-  port: 80
+  # HTTP port (main web UI)
+  httpPort: 80
+  # SMTP ports (only needed if using AliasVault's built-in email aliasing)
+  smtp:
+    enabled: false
+    port: 25
+    submissionPort: 587
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+# Ingress configuration
 ingress:
   enabled: false
   className: ""
   annotations: {}
     # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: chart-example.local
+    - host: aliasvault.example.com
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls: []
-    # - secretName: chart-example-tls
-    #   hosts:
-    #     - chart-example.local
+  #  - secretName: aliasvault-tls
+  #    hosts:
+  #      - aliasvault.example.com
 
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
 # (see: https://gateway-api.sigs.k8s.io/guides/)
 httpRoute:
-  # HTTPRoute enabled.
   enabled: false
-  # HTTPRoute annotations.
   annotations: {}
-  # Which Gateways this Route is attached to.
   parentRefs:
-  - name: gateway
-    sectionName: http
-    # namespace: default
-  # Hostnames matching HTTP header.
+    - name: gateway
+      sectionName: http
+      # namespace: default
   hostnames:
-  - chart-example.local
-  # List of rules and filters applied.
+    - aliasvault.example.com
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /headers
-  #   filters:
-  #   - type: RequestHeaderModifier
-  #     requestHeaderModifier:
-  #       set:
-  #       - name: My-Overwrite-Header
-  #         value: this-is-the-only-value
-  #       remove:
-  #       - User-Agent
-  # - matches:
-  #   - path:
-  #       type: PathPrefix
-  #       value: /echo
-  #     headers:
-  #     - name: version
-  #       value: v2
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 500m
+  #   memory: 512Mi
   # requests:
   #   cpu: 100m
-  #   memory: 128Mi
+  #   memory: 256Mi
 
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# Liveness probe - AliasVault web UI health check
 livenessProbe:
   httpGet:
     path: /
     port: http
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  failureThreshold: 5
+
+# Readiness probe
 readinessProbe:
   httpGet:
     path: /
     port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
 
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
-# Additional volumes on the output Deployment definition.
 volumes: []
-  # - name: foo
-  #   secret:
-  #     secretName: mysecret
-  #     optional: false
-
-# Additional volumeMounts on the output Deployment definition.
 volumeMounts: []
-  # - name: foo
-  #   mountPath: "/etc/foo"
-  #   readOnly: true
 
 nodeSelector: {}
-
 tolerations: []
-
 affinity: {}
