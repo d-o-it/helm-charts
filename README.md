@@ -130,7 +130,7 @@ The `.tgz` packages are **not** stored in the repository - they are built and pu
 
 ## Pages
 
-GitHub Pages is configured to serve from the `master` branch root.
+GitHub Pages is configured to serve from the `master` branch root. The site is available at https://d-o-it.github.io/helm-charts
 The Helm repository index is available at:
 
 ```
