@@ -59,7 +59,7 @@ jobs:
       - name: Update Helm repo index
         run: |
           # Build index merging each chart's release download URL
-          cp charts/index.yaml .cr-release-packages/index.yaml
+          cp index.yaml .cr-release-packages/index.yaml
           for chart in charts/*/; do
             name=$(helm show chart "$chart" | grep '^name:' | awk '{print $2}')
             version=$(helm show chart "$chart" | grep '^version:' | awk '{print $2}')
@@ -69,10 +69,10 @@ jobs:
               --url "https://github.com/${{ github.repository }}/releases/download/${tag}" \
               --merge .cr-release-packages/index.yaml
           done
-          cp .cr-release-packages/index.yaml charts/index.yaml
+          cp .cr-release-packages/index.yaml index.yaml
 
       - name: Commit updated index.yaml
         run: |
-          git add charts/index.yaml
+          git add index.yaml
           git diff --staged --quiet || git commit -m "ci: update helm repo index [skip ci]"
           git push
