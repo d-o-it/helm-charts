@@ -71,7 +71,7 @@ The chart creates 4 separate PVCs by default:
 
 | PVC | Mount | Default Size | Purpose |
 |-----|-------|-------------|----------|
-| `*-database` | `/database` | 2Gi | SQLite database |
+| `*-database` | `/database` | 2Gi | Postgres database |
 | `*-logs` | `/logs` | 1Gi | Application logs |
 | `*-secrets` | `/secrets` | 1Gi | Internal secrets |
 | `*-certificates` | `/certificates` | 1Gi | TLS certificates |
