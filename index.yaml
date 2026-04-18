@@ -3,7 +3,7 @@ entries:
   aliasvault:
   - apiVersion: v2
     appVersion: 0.28.1
-    created: "2026-04-18T20:12:44.4004708742Z"
+    created: "2026-04-18T20:12:44.401396238Z"
     description: A Helm chart for deploying AliasVault - privacy-first password manager
       with built-in email aliasing
     digest: a3e0d006013269256cff0026afaaf1c133b3dae68b0e235eea70e90fa38bf38a
