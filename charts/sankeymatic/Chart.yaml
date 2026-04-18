@@ -1,6 +1,0 @@
-apiVersion: v2
-name: sankeymatic
-description: A Helm chart for Kubernetes deployment of SankeyMATIC
-type: application
-version: 0.1.1
-appVersion: "latest"
