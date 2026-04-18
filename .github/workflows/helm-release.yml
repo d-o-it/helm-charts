@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'charts/**'
 
 jobs:
   release:
@@ -27,52 +25,7 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
-      - name: Lint charts
-        run: |
-          for chart in charts/*/; do
-            echo "Linting $chart"
-            helm lint "$chart"
-          done
-
-      - name: Package charts and publish releases
-        id: package
-        run: |
-          mkdir -p .cr-release-packages
-          for chart in charts/*/; do
-            name=$(helm show chart "$chart" | grep '^name:' | awk '{print $2}')
-            version=$(helm show chart "$chart" | grep '^version:' | awk '{print $2}')
-            tag="${name}-${version}"
-            echo "Packaging $name@$version (tag: $tag)"
-            helm package "$chart" --destination .cr-release-packages
-
-            # Create or update the GitHub release for this chart version
-            gh release view "$tag" > /dev/null 2>&1 && \
-              gh release upload "$tag" ".cr-release-packages/${name}-${version}.tgz" --clobber || \
-              gh release create "$tag" ".cr-release-packages/${name}-${version}.tgz" \
-                --title "${name} ${version}" \
-                --notes "Helm chart release for ${name} version ${version}" \
-                --latest=false
-          done
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update Helm repo index
-        run: |
-          # Build index merging each chart's release download URL
-          cp index.yaml .cr-release-packages/index.yaml
-          for chart in charts/*/; do
-            name=$(helm show chart "$chart" | grep '^name:' | awk '{print $2}')
-            version=$(helm show chart "$chart" | grep '^version:' | awk '{print $2}')
-            tag="${name}-${version}"
-            url="https://github.com/${{ github.repository }}/releases/download/${tag}/${name}-${version}.tgz"
-            helm repo index .cr-release-packages \
-              --url "https://github.com/${{ github.repository }}/releases/download/${tag}" \
-              --merge .cr-release-packages/index.yaml
-          done
-          cp .cr-release-packages/index.yaml index.yaml
-
-      - name: Commit updated index.yaml
-        run: |
-          git add index.yaml
-          git diff --staged --quiet || git commit -m "ci: update helm repo index [skip ci]"
-          git push
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
