@@ -134,5 +134,5 @@ GitHub Pages is configured to serve from the `master` branch root. The site is a
 The Helm repository index is available at:
 
 ```
-https://d-o-it.github.io/helm-charts/charts/index.yaml
+https://d-o-it.github.io/helm-charts/index.yaml
 ```
