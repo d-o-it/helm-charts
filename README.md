@@ -9,7 +9,7 @@ A collection of Helm charts for Kubernetes, hosted via GitHub Pages.
 Add the Helm repository:
 
 ```bash
-helm repo add d-o-it https://d-o-it.github.io/helm-charts/charts
+helm repo add d-o-it https://d-o-it.github.io/helm-charts
 helm repo update
 ```
 
