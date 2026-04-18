@@ -10,7 +10,7 @@ entries:
     name: aliasvault
     type: application
     urls:
-    - https://github.com/d-o-it/helm-charts/releases/download/sankeymatic-0.1.0/aliasvault-0.1.0.tgz
+    - https://github.com/d-o-it/helm-charts/releases/download/aliasvault-0.1.0/aliasvault-0.1.0.tgz
     version: 0.1.0
   sankeymatic:
   - apiVersion: v2
