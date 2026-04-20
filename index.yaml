@@ -3,6 +3,17 @@ entries:
   aliasvault:
   - apiVersion: v2
     appVersion: 0.28.1
+    created: "2026-04-20T19:05:54.55217582Z"
+    description: A Helm chart for deploying AliasVault - privacy-first password manager
+      with built-in email aliasing
+    digest: 650e08d63eb1b241fba663a6c8aeeb56d9e7a4d2ddcbad494e75d2baa4bc2de8
+    name: aliasvault
+    type: application
+    urls:
+    - https://github.com/d-o-it/helm-charts/releases/download/aliasvault-0.1.6/aliasvault-0.1.6.tgz
+    version: 0.1.6
+  - apiVersion: v2
+    appVersion: 0.28.1
     created: "2026-04-18T22:05:27.671565407Z"
     description: A Helm chart for deploying AliasVault - privacy-first password manager
       with built-in email aliasing
@@ -23,4 +34,4 @@ entries:
     urls:
     - https://github.com/d-o-it/helm-charts/releases/download/sankeymatic-0.1.5/sankeymatic-0.1.5.tgz
     version: 0.1.5
-generated: "2026-04-18T22:05:27.811680533Z"
+generated: "2026-04-20T19:05:54.552183945Z"
