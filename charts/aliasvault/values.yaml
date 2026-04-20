@@ -5,6 +5,7 @@
 # AliasVault runs as a single all-in-one container (s6-overlay based).
 # Replicas > 1 are not supported due to local SQLite database.
 replicaCount: 1
+deploymentStrategy: Recreate
 
 # Container image settings
 image:
