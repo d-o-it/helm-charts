@@ -74,6 +74,18 @@ spec:
                 secretKeyRef:
                   name: {{ include "aliasvault.secretName" . }}
                   key: {{ .Values.secret.dataProtectionCertPasswordKey }}
+            {{- if .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            {{- if kindIs "map" $value }}
+            - name: {{ $key | quote }}
+              valueFrom:
+                {{- toYaml $value.valueFrom | nindent 16 }}
+            {{- else }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

@@ -2,5 +2,5 @@ apiVersion: v2
 name: aliasvault
 description: A Helm chart for deploying AliasVault - privacy-first password manager with built-in email aliasing
 type: application
-version: 0.1.5
+version: 0.1.6
 appVersion: "0.28.1"

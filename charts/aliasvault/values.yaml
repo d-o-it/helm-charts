@@ -50,6 +50,16 @@ secret:
   # IMPORTANT: Change this to a secure random string in production!
   dataProtectionCertPassword: "change-me-to-a-secure-random-value"
 
+# Extra environment variables that will be pass onto deployment pods
+# Expects key: value
+env: {}
+  # ASPNETCORE_ENVIRONMENT: Production
+  # SECRET_VAR:
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: env-secret
+  #       key: secret
+
 # Persistence configuration for AliasVault data directories
 persistence:
   # Enable persistent storage (strongly recommended for production)
